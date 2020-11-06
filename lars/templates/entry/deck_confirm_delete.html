@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Really delete?{% endblock %}
+
+{% block content %}
+<form method="POST" action="{% url deck:delete deck.pk %}">
+	{% csrf_token %}
+	<input type="submit" value="Delete" />
+</form>
+{% endblock %} 
+

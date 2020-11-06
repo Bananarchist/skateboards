@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block content %}
+<div id="page">
+	{% if announcements %}
+	{% for announcement in announcements %}
+	{% include "announce/announcement_mini.html" %}
+	{% endfor %}
+	{% else %}
+	<p>No news is good news.</p>
+	{% endif %}
+</div>
+{% endblock %}
+
+{% block body_script %}{% endblock %}

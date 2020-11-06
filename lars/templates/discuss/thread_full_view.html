@@ -1,0 +1,16 @@
+<section id="announcement">
+	<span id="title">{{ thread.title }}</span>
+	<!--<img id="avvy" width="128px" height="128px" />-->
+	<span id="thread_poster">Posted by <a href="{% url view_user_profile thread.creator.pk %}">{{ thread.creator.username }}</a> on {# dateposted here #}</span>
+	<article id="text">{{ thread.text }}</article>
+	{% if not moderation %}
+		{% if thread.challenge_set.all %}{% with thread.challenge_set.all.0 as challenge %}
+	<fieldset>
+		<legend>{{ challenge.title }}</legend>
+		<ul>{% for req in challenge.recs.all %}<li>{{ req.text }}</li>{% endfor %}</ul>
+		{% if perms.discuss.change_challenge %}<a href="{% url challenge:update challenge.pk %}">Edit</a>{% endif %}
+	</fieldset>
+		{% endwith %}{% endif %}
+	{% endif %}
+	{% for tag in thread.tags.all %}<a class="tagLink" href="{% url tag:view tag.pk %}">{{ tag.text }}</a> {% endfor %}	
+</section>	

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+{% if search %}
+<form method="GET">
+	{{ form.as_p }}
+	<input type="hidden" name="filter" value="True" />
+	<input type="submit" value="Submit!" /><input type="reset" value="Clear" />
+</form>
+{% endif %}
+{% if decks %}
+<ul id="decks_slice">
+	{% for deck in decks %}
+	<li class="deck">{% include "entry/deck_mini_view.html" %}</li>
+	{% endfor %}
+</ul>
+{% else %}
+<span>No decks found matching this query! Would you like to <a href="{% url deck:create %}">submit one</a>?</span>
+{% endif %}
+{% endblock %}

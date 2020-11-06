@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% load comments %}
+
+
+{% block title %}{% if isnews %}News: {% endif %}{{ thread.title }}{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+
+{% block content %}
+<div id="page">
+	{% include 'discuss/thread_full_view.html' %}
+	{% if edit_button %}<a href="{% url thread:update thread.pk %}">Edit</a>{% endif %}
+	{% if delete_button %}
+		{% if perms.discuss.delete_thread %}
+		<form action="{% url mod:create %}" method="GET" name="modform">
+			<input type="hidden" name="content_type" value="{{ content_type }}" />
+			<input type="hidden" name="object_id" value="{{ thread.pk }}" />
+			<input type="submit" value="Delete" />	
+		</form>
+		{% else %}
+		<a href="{% url thread:delete thread.pk %}">Delete</a>
+		{% endif %}
+	{% endif %}
+	<section id="comments">
+	<!-- Auth/comment system stuff... -->
+	{% get_comment_list for thread as comment_list %}
+	{% for comment in comment_list %}
+		<span><a href='{% url view_user_profile comment.user.pk %}'>{{ comment.user.username }}</a> said: </span>
+		<p>{{ comment.comment }}</p>
+		<span>At {{ comment.submit_date }}</span>
+	{% endfor %}
+	{% if user.is_authenticated and thread.comments_enabled %}
+	{% get_comment_form for thread as form %}
+	<form action="{% comment_form_target %}" method="POST">
+		{% csrf_token %}
+		<input type="hidden" name="next" value="{% url thread:view thread.pk %}" />
+		{{ form.comment }}
+		{{ form.honeypot }}
+		{{ form.content_type }}
+		{{ form.object_pk }}
+		{{ form.timestamp }}
+		{{ form.security_hash }}
+		<input type="submit" value="Post!" id="id_submit" />
+	</form>
+	{% else %}
+		<p>Please <a href="{% url login_page %}" />login</a> to leave a comment. </p>
+	{% endif %}
+	</section>
+</div>
+{% endblock %}
+

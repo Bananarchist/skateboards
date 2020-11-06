@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Recent removals{% endblock %}
+
+{% block content %}
+<table id="modlist">
+	<thead>
+		<tr>
+			<td>Moderator</td>
+			<td>Object</td>
+			<td>Creator</td>
+			<td>Date</td>
+		</tr>
+	</thead>
+	<tbody>
+		{% for mod in modevent_list %}
+		<tr class="modlistrow">
+			<td><a href="{% url view_user_profile mod.creator.pk %}">{{ mod.creator }}</a></td>
+			<td><a href="{% url mod:view mod.pk %}">{{ mod.content_type.model }}</a></td>
+			<td><a href="{% url view_user_profile mod.content_object.creator.pk %}">{{ mod.content_object.creator }}</a></td>
+			<td>{{ mod.date_posted }}</td>
+		</tr>
+		{% endfor %}
+		</tbody>
+</table>
+{% endblock %}

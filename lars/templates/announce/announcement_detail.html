@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ announcement.title }}{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block content %}
+<div id="page">
+	<section id="announcement">
+		<span id="title"{% if perms.announce.change_announcement %} contenteditable="true"{% endif %}>{{ announcement.title }}</span>
+		<!--<img id="avvy" width="128px" height="128px" />-->
+		<article id="text"{% if perms.announce.change_announcement %} contenteditable="true"{% endif %}>{{ announcement.text }}</article>
+		{% if perms.announce.delete_announcement %}
+		<form action="{% url post_announcement %}" method="POST">
+			{% csrf_token %}
+			<input type="hidden" name="deltete" value="true" />
+			<input type="hidden" name="tid" value="{{ announcement.pk }}" />
+			<input type="submit" value="Delete" />
+		</form>
+		{% endif %}
+		{% if perms.announce.change_announcement %}
+		<input type="button" value="Update">
+		{% endif %}
+		{% if announcement.challenge %}
+		<fieldset>
+			<legend>{{ announcement.challenge.title }}</legend>
+			<ul>
+				{% for req in announcement.challenge.reqs.all %}
+				<li>{{ req.text }}</li>
+				{% endfor %}
+			</ul>
+		</fieldset>
+		{% endif %}
+	</section>
+	<section id="comments">
+	<!-- Auth/comment system stuff... -->
+
+	</section>
+</div>
+{% endblock %}
+
+{% block body_script %}
+{% if perms.announce.delete_announcement or perms.announce.change_announcement %}
+<script>
+function mod_announce(e) {
+		//it would be nice to watch for changes so that we don't have to send the
+		//full text everytime, problem is the number of different events that
+		//contenteditable fields produce, we may have to hack something together
+		//if w3c or browsers don't come up with something
+    var jqxhr = $.post('{% url post_announcement %}', 
+    	{'tid': {{ announcement.pk }}, 'modify':true, 'title':$('#title').text(), 'text': $('article#text').text()}, 
+    	(function(data, textStatus, jqXHR) {
+    		alert("Successfully saved changes.");
+     		return true; //don't know if these have to actually do anything
+    	}), 
+    	'xml')
+    jqxhr.fail(function(data, code, xhr) {
+    	alert("Failed!");
+    });   
+}
+$('#announcement input[value="Update"]').on('click', mod_announce);
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,167 @@
+body {
+	background: #CCF;
+	margin: 0 auto;
+	text-align: center;
+}
+
+header {
+	background: #00F;
+	color: #000;
+	width: 100%;
+	height: 150px;
+}
+
+nav {
+	border-top: solid 1px;
+	border-bottom: solid 1px;
+	background: #F0F;
+	color: #000;
+	width: 100%;
+	height: 20px;
+	margin-bottom: 10px;
+}
+
+.box {
+	border: solid 1px
+}
+
+footer {
+	background: #00F;
+	color: #000;
+}
+
+canvas {
+	border: solid 1px;
+}
+
+nav a:not(:first-child):before {
+	content: "•"
+}
+
+div {
+	border: solid 1px;
+}
+
+div#entry {
+	text-align: left;
+	position: relative;
+	left: 20px;
+}
+
+div#page {
+	text-align: left;
+	margin: 0 auto;
+}
+
+img#design {
+	position: relative;
+	left: 10px;
+	float: left;
+}
+
+span#title {
+	font-size: 64px;
+	position: relative;
+	left: 20px;
+}
+
+div#entry #information {
+	position: relative;
+	left: 10px;
+	min-width: 450px;
+	width: 450px;
+	max-width: 450px;
+	font-size: 14px;
+	clear: none;
+}
+
+.tagLink {
+	font-size: 10px;
+	font-style: italic;
+	font-weight: bold;
+}
+
+.tagLink::before {
+	content: "#";
+}
+
+div#entry #voting {
+	position: relative;
+	left: 20px;
+	float: left;
+}
+
+div#entry #entry_credit {
+	font-size: 24px;
+}
+
+#voting .voteResults {
+	font-size: 64px;
+}
+
+
+#voting .voteButton {
+	max-width: 64px;
+	max-height: 64px;
+}
+
+
+#comments {
+	float: left;
+	clear: both;
+	margin-top: 20px;
+}
+
+div.comment {
+	border: solid 1px;
+	min-height: 128px;
+}
+
+
+.comment .avatar {
+	float: left;
+	border-right: solid 1px;
+	height: 100%;
+}
+
+.comment .username {
+}
+.comment .date {
+}
+
+.comment .comment_text {
+}
+
+/*input[name^="req"]:before {
+	content: '\A';
+}*/
+
+#id_honeypot {
+	display: none;
+}
+
+
+.entry_mini {
+	text-align: center;
+    display: inline-box;
+}
+
+img.entry_thumb {
+		vertical-align: middle;
+}
+
+span.entry_title {
+
+}
+
+span.entry_artist {
+
+}
+
+#processor { display: none;}
+
+a:hover, a:link, a:visited, a:active {
+	text-decoration: none;
+}
+
+.announcement_title {font-weight: bold}

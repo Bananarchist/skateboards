@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Challenge the People!{% endblock %}
+
+{% block content %}
+
+<form name="challenge" action="" method="POST">
+	{% csrf_token %}
+	<div>{{ form.errors.title }}{{ form.title.label_tag }} {{ form.title }}</div>
+	<div>{{ form.errors.recs }}{{ form.recs.label_tag }} {{ form.recs }}</div>
+	<div>{{ form.errors.date_expires }}{{ form.date_expires.label_tag }} {{ form.date_expires }}</div>
+	{{ form.errors.news }}<input type="hidden" name="news" value="{{ thread_pk }}" />
+	<br />
+	<input type="submit" value="Post!" /> <input type="reset" value="Clear" />
+</form>
+{% endblock %}
+
+
+

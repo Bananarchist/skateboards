@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% load comments %}
+
+{% block title %}Useless Comment List{% endblock %}
+
+{% block content %}
+{% for comment in comment_list %}
+<div class="comment">
+	<span><a href="{% url view_user_profile comment.creator.pk %}">{{ comment.creator.username }}</a> posted in <a href="{% url thread_view comment.content_object. %}">{{ comment.response.content_object.title }}</a>{% endif %} on {{ comment.date_posted }} with:</span>
+	<p>
+		{{ comment.text }}
+	</p>
+	<span>(Last modified: {{ comment.date_modified }})</span>
+</div>
+{% endfor %}
+{% endblock %}

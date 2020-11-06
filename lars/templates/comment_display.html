@@ -1,0 +1,13 @@
+<a name="c{{ comment.id }}"></a>
+<div class="comment">
+	{% if perms.comments.can_moderate_comments or user.pk == comment.user.id %}{{ comment.ip_address }} <a href="{% url comments-delete comment.id %}"><b>D</b></a>{% endif %}{% if user.is_authenticated %}<a href="{% url comments-flag comment.id %}"><b>F</b></a>{% endif %}
+	<a href="{% url view_user_profile comment.user.pk %}"><img class="avatar" src="" alt="{{ comment.user.username }}" /></a>
+	<span class="username"><a href="{% url view_user_profile comment.user.pk %}">{{ comment.user.username }}</a></span>, 
+	<span class="date"><a href="">{{ comment.submit_date }}</a></span>
+	{% if comment.is_removed %}
+	<article class="removed_comment_text">Comment removed by site staff.</article>
+	{% else %}
+	<article class="comment_text">{{ comment.comment }}</article>
+	{% endif %}
+	<!-- report post stuff... -->
+</div>

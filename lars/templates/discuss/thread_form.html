@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Create new thread{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block content %}
+<form name="thread" action="" method="POST">
+	{{ form.non_field_errors }}
+	{{ form.errors.category}}
+	<div>{{ form.errors.title }}{{ form.title.label_tag }}{{ form.title }}</div>
+	<div>{{ form.errors.text }}{{ form.text.label_tag }}{{ form.text }}</div>
+	<div>{{ form.errors.tags }}{{ form.tags.label_tag }}{{ form.tags }}</div>
+	{% if perms.discuss.disable_comments %}
+	<div>{{ form.errors.comments_enabled }}{{ form.comments_enabled.label_tag }}{{ form.comments_enabled }}</div>
+	{% endif %}
+	{% if isnews %}
+	<input type="hidden" id="id_category" value="{{ isnews }}" name="category" />
+	<div>{{ form.errors.date_published }}{{ form.date_published.label_tag }}{{ form.date_published }}</div>
+	{% else %}
+	<div>{{ form.errors.category }}{{ form.category.label_tag }}<select id="id_category" name='category'>
+			{% for cat in form.fields.category.queryset %}
+			{% if 'News' not in cat.title or perms.news.add_news %}
+			<option value="{{ cat.pk }}"{% if referer == cat.pk %} selected="selected"{% endif %}>{{ cat.title }}</option>
+			{% endif %}
+			{% endfor %}
+		</select>
+	</div>
+	{% endif %}
+	{% csrf_token %}
+	<!-- The above permission should check to see if "News" category is allowed --> 
+	{% if perms.challenge.add_challenge %}
+	{% if isnews %}
+	{% if not update %}
+	Challenge: <input type="checkbox" name="ifchallenge" />
+	{% endif %}
+	{% endif %}
+	{% endif %}
+	<br />
+	<input type="submit" value="Post!" /> <input type="reset" value="Clear" />
+</form>
+{% endblock %}
+

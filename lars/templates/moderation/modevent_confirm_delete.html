@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Really delete?{% endblock %}
+
+{% block content %}
+Do you want to delete the removed {{ modevent.content_type.model }} as well? Choosing not to will make it public again.
+<form method="POST" action="{% url mod:delete modevent.pk %}">
+	{% csrf_token %}
+	<label for="delete_associated_object">Delete {{ modevent.content_type.model }}: <input type="checkbox" name="delete_associated_object" />
+	<input type="submit" value="Delete" />
+</form>
+{% endblock %} 
+

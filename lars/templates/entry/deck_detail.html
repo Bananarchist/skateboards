@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ deck_title }}{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block body_script %}
+{% if user.is_authenticated %}
+<script>
+function send_vote(e) {
+	var vote_value = e.target.value==="Yes" ? 1 : 0;
+    	var jqxhr = $.post('{% url vote:deck deck.pk %}', 
+    		{poll_id: e.target.form.name, vote_value: vote_value},
+    		(function(data, textStatus, jqXHR) {
+     			var root = $(data).find('root');
+			e.target.form.innerHTML = '<p><span id="votesup">'+root.find('v_up').text()+'</span> yes, <span id="votesdown">'+root.find('v_down').text()+'</span> no</p>';
+    		}), 
+    	'xml');
+     
+	jqxhr.done(function(data, code, xhr) {
+     		var xd = $($.parseXML(data)).find('root');
+    	});
+    	jqxhr.fail(function(data, code, xhr) {
+    		alert("Failed!");
+    	});   
+}
+$('.vote_button').on('click', send_vote);
+</script>
+{% endif %}
+{% endblock %}
+
+
+
+{% block content %}
+<div id="page">
+	{% if edit_button %}<a href="{% url deck:update deck.pk %}">Edit</a>{% endif %}
+	{% if delete_button %}
+		{% if perms.discuss.delete_deck %}
+		<form action="{% url mod:create %}" method="GET" name="modform">
+			<input type="hidden" name="content_type" value="{{ content_type }}" />
+			<input type="hidden" name="object_id" value="{{ deck.pk }}" />
+			<input type="submit" value="Delete" />	
+		</form>
+		{% else %}
+		<a href="{% url deck:delete deck.pk %}">Delete</a>
+		{% endif %}
+	{% endif %}
+	{% include 'entry/deck_full_view.html' %}
+	<section id="voting">
+			{% if user.is_authenticated %}
+			{% for poll, voted in user_voted.items %}
+				{{ poll.question }}{% if voted %}<p><span id="votesup">{{ poll.yes_count }}</span> yes, <span id="votesdown">{{ poll.no_count }}</span> no</p>{% else %}<form name="{{ poll.pk }}"><input type="button" class="vote_button" value="Yes" /> <input type="button" class="vote_button" value="No" /></form>{% endif %}
+			{% endfor %}
+			{% endif %}
+		</section>
+		{% if deck.challenge %}
+		<section id="challenge">
+			<span>Challenge Accepted!</span>
+			<span>{{ deck.challenge.title }}</span>
+			<ul id="recs">
+			{% for rec in deck.challenge.recs.all %}
+				<li class="rec">{{ rec.text }}</li>
+			{% endfor %}
+			</ul>
+		</section>
+		{% endif %}
+		<section id="comments">
+			<!-- comments -->
+			{% load comments %}
+			{% get_comment_list for deck as comment_list %}
+			{% for comment in comment_list %}
+				<span><a href='{% url view_user_profile comment.user.pk %}'>{{ comment.user.username }}</a> said: </span>
+                		<p>{{ comment.comment }}</p>
+                		<span>At {{ comment.submit_date }}</span>
+			{% endfor %}
+			{% if user.is_authenticated %}
+			{% get_comment_form for deck as form %}
+			<form action="{% comment_form_target %}" method="POST">
+				{% csrf_token %}
+				<input type="hidden" name="next" value="{% url deck:view deck.pk %}" />
+				{{ form.comment }}
+				{{ form.honeypot }}
+				{{ form.content_type }}
+				{{ form.object_pk }}
+				{{ form.timestamp }}
+				{{ form.security_hash }}
+				<input type="submit" value="Post!" id="id_submit" />
+			</form>
+			{% else %}
+				<p>Please <a href="{% url login_page %}" />login</a> to leave a comment. </p>
+		{% endif %}
+		</section>
+	</div>
+</div>
+
+{% endblock %}

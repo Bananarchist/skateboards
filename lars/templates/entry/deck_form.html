@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if update %}Edit deck{% else %}Submit new deck{% endif %}{% endblock %}
+
+{% block head_script %}{% endblock %}
+{% block body_script %}
+<script>
+var GLOW = {
+	{% if not update %}
+	mstatus: null,
+	canv: {a: null, b: null},
+	ctx: {a: null, b: null},
+	image: null,
+	idata: null,
+	bbox: {x: 0, y: 0, w:0, h:0},
+	C: { //constants
+		node_dim: 8,
+		ms: {
+			INACTIVE: 0,
+			ACTIVE: 1,
+			FOCUSED: 2,
+			DRAGGING: 4,
+			SCALING: 8,
+			CROPPING: 16,
+		},
+	},
+	{% endif %}
+	view: {% if update %}1{% else %}0{% endif %},
+};
+
+function toggle_view(e) {
+	if(GLOW.view == 0) {
+		$('#editpage').slideUp();
+		$('#previewpage').slideDown();
+		$('#view_swap').val('Edit Image');
+	} else {
+		$('#previewpage').slideUp();
+		$('#editpage').slideDown();
+		$('#view_swap').val('Edit Info');
+	}
+	GLOW.view ^= 1;
+}
+
+function init() {
+ 	{% if not update %}
+	GLOW.canv.a = $('#editor')[0];
+ 	GLOW.canv.b = $('#preview')[0];
+ 	GLOW.ctx.a = GLOW.canv.a.getContext('2d');
+ 	GLOW.ctx.b = GLOW.canv.b.getContext('2d');
+ 	$(window).resize(resizeCanvas);
+	$(window).trigger('resize');
+	$('#imagely').on('change', handleFileSelect);
+	GLOW.bbox.x = (GLOW.canv.a.width - 4) / 2;
+	GLOW.bbox.y = (GLOW.canv.a.height - 4) / 2;
+	$('#id_deck_length_coefficient').on('keydown', resizeCanvas)
+	$('#id_deck_width_coefficient').on('keydown', resizeCanvas)
+	{% endif %}
+ 	$('#{% if update %}edit{% else %}preview{% endif %}page').hide();
+}
+{% if not update %}
+function resizeCanvas(e) {
+	GLOW.canv.a.width = Math.min($(window).width() * .5, 600); //also need to do canv.b if that shows on side
+	GLOW.canv.a.height = Math.min(($(window).height() - $('#editpage').offset().top) * .8, (GLOW.image == null ? 450 : GLOW.image.i.height));
+	GLOW.bbox.h = GLOW.canv.a.height - 4;
+	GLOW.bbox.w = $('#id_deck_width_coefficient')[0].value/$('#id_deck_length_coefficient')[0].value * GLOW.bbox.h;
+	GLOW.canv.b.width = GLOW.bbox.w - 2;
+	GLOW.canv.b.height = GLOW.bbox.h - 2; 
+	if(GLOW.image) { 
+    		if(GLOW.image.csc < 1 && (GLOW.image.i.width < GLOW.canv.a.width || GLOW.image.i.height < GLOW.canv.a.height)) {
+    			GLOW.image.csc = 1;
+		}	
+		if(GLOW.image.i.width >= (GLOW.canv.a.width)) { GLOW.image.csc = (GLOW.canv.a.width) / GLOW.image.i.width; }
+		if(GLOW.image.i.height >= (GLOW.canv.a.height) && (GLOW.canv.a.height) / GLOW.image.i.height < GLOW.image.csc) { //more likely
+			GLOW.image.csc = (GLOW.canv.a.height) / GLOW.image.i.height; 
+		}
+		updateScreen(e);
+		$('input[type=checkbox]').on('click', updateScreen);
+	}
+}
+
+
+
+function handleFileSelect(e) {
+    var i = e.target.files[0];
+    var r = new FileReader();
+    r.onload = (function(f) {
+        return (function(e) {
+            var i = new Image();
+            i.onload = (function() {
+            GLOW.image = {i:i, x:GLOW.canv.a.width/i.width, y:GLOW.canv.a.height/i.height, r:0, csc: 1, //csc = GLOW.canv.aas scaling constant, ratio to scale image to to fit GLOW.canv.aas
+                			get w() {
+                				return this.i.width * this.csc; //will factor user scaling
+                			}, 
+                			get h() {
+                				return this.i.height * this.csc;
+                			}}; 
+                resizeCanvas(e);
+		$('#editor').on('mouseenter', handleMouse);
+                $('#editor').on('mouseleave', handleMouse);
+                //$('input[name=preview]').on('click', btogs);
+		//$('input[name=goback]').on('click', btogs);
+		$('#bgcolor').on('change', updateScreen);
+             	//if mouse.in canvas.a $(editor).on click, perhaps trigger, dunno   	
+            });
+            i.src = e.target.result;
+        });
+    })(i);
+    r.readAsDataURL(i);
+}
+
+function handleMouse(e) {
+	var mouseInRect = (function(px, py, rx, ry, rw, rh) {
+		return ((px >= rx && px <= rx + rw) && (py >= ry && py <= ry + rh));
+	});
+	var mouse = {
+			x:e.pageX - $('#editor').offset().left,
+			y:e.pageY - $('#editor').offset().top,
+	};
+	C = GLOW.C.ms;
+
+
+	switch(e.type) {
+	case 'mouseenter':
+		GLOW.mstatus = C.ACTIVE;
+		$('#editor').css('cursor', 'default')
+				.on('mousedown', handleMouse);
+		break;
+	case 'mouseleave':
+		//if focused, drop box and make inactive
+		//may need to return to original position if preview doesnt work
+		if(GLOW.mstatus == C.FOCUSED) {
+			// nothing to do to drop box?
+		}
+		//if active, make inactive
+		$('#editor').off('mousedown').off('mousemove');
+		GLOW.mstatus = C.INACTIVE;
+		break;
+	case 'mousedown':
+		//if active, pick up box, make focused
+		if(GLOW.mstatus == C.ACTIVE) {
+			GLOW.bbox.x = mouse.x;
+			GLOW.bbox.y = mouse.y;
+			$('#editor').on('mousemove', handleMouse)
+					.on('mouseup', handleMouse);
+			GLOW.mstatus = C.FOCUSED;
+		}
+		break;
+	case 'mouseup':
+		if(GLOW.mstatus == C.FOCUSED) {
+			GLOW.mstatus = C.ACTIVE;
+			$('#editor').off('mousemove');
+		}
+	case 'mousemove':
+		//if focused, move bbox
+		if(GLOW.mstatus == C.FOCUSED) {
+			GLOW.bbox.x = mouse.x;
+			GLOW.bbox.y = mouse.y;
+		}
+	default:
+		break;
+	}
+	updateScreen();
+}
+
+
+function updateScreen(text_mode) { //text_mode = Boolean, should we render canvas at all?
+	if(text_mode == true) { return false; }
+	if(GLOW.image) {
+		GLOW.ctx.a.clearRect(0,0, GLOW.canv.a.width, GLOW.canv.a.height);
+		GLOW.ctx.a.save();	
+//check user controlled scaling scaling
+		var dx = 0, dy = 0, sx = 0, sy = 0, dw = 0, dh = 0, sh = 0, sw = 0; 
+//render image
+		GLOW.ctx.a.drawImage(GLOW.image.i, sx, sy, GLOW.image.i.width, GLOW.image.i.height, dx, dy, GLOW.image.w, GLOW.image.h);	
+//render bbox
+		GLOW.ctx.a.save()
+		GLOW.ctx.a.strokeStyle = (GLOW.mstatus & GLOW.C.ms.FOCUSED) ? "#0ff" : "#F0F";
+		GLOW.ctx.a.lineWidth = 1.0;
+		GLOW.ctx.a.beginPath();
+			GLOW.ctx.a.rect(GLOW.bbox.x - GLOW.bbox.w / 2, GLOW.bbox.y - GLOW.bbox.h / 2, GLOW.bbox.w, GLOW.bbox.h);
+		GLOW.ctx.a.stroke();	
+		GLOW.ctx.a.restore()
+//
+	
+		GLOW.ctx.a.restore();
+	}
+	//preview
+	if(GLOW.image) {
+		GLOW.ctx.b.clearRect(0, 0, GLOW.canv.b.w, GLOW.canv.b.height);
+		GLOW.ctx.b.putImageData(GLOW.ctx.a.getImageData(GLOW.bbox.x - GLOW.bbox.w/2 + 1, GLOW.bbox.y - GLOW.bbox.h/2 + 1, GLOW.bbox.w-1, GLOW.bbox.h-1), 0, 0);
+		GLOW.img_data = GLOW.canv.b.toDataURL('image/png');
+	}
+	return true;
+}
+{% endif %}
+$(document).on('ready', function() {
+	init();
+	$('#view_swap').on('click', toggle_view);
+	{% if not update %}
+	$('input[type=submit]').on('click', function() {
+		//we will need to regulate size, for now, FREE FOR ALL
+		if(GLOW.image) {
+			$('input[name=deck]')[0].value = GLOW.canv.b.toDataURL('image/png'); 
+		}
+	});
+	{% endif %}
+});
+
+</script>
+{% endblock %}
+
+{% block content %}
+<form name="deck" method="POST" action="">
+<div id="editpage">
+{% if update %}
+<p>If you want to edit the image itself, you must <a href="{% url deck:delete deck.pk %}">delete it</a>, and then resubmit your entry.</p>
+{% else %}
+<div>{{ form.errors.deck_image }}</div>
+<canvas id="editor" width="450px" height="600px" css="position: relative;"> </canvas>
+<canvas id="preview" width="1px" height="1px"> </canvas>
+<div style="clear:none;">
+{{ form.errors.deck_length_coefficient }}{{ form.deck_length_coefficient.label_tag }}{{ form.deck_length_coefficient }}
+<br />
+{{ form.errors.deck_width_coefficient }}{{ form.deck_width_coefficient.label_tag }}{{ form.deck_width_coefficient }}
+</div>
+<input type="file" id="imagely" />
+{% endif %}
+</div>
+<input type='button' id="view_swap" value='Edit info' />
+<div id="previewpage">
+<span>And now for that info!</span>
+	{% csrf_token %}
+	<div>{{ form.errors.title }}{{ form.title.label_tag }}{{ form.title }}</div>
+	<div>{{ form.errors.text}}{{ form.text.label_tag }}{{ form.text }}</div>
+	<div>{{ form.errors.challenge }}{{ form.challenge.label_tag }}{{ form.challenge }}</div>
+	<div>{{ form.errors.tags }}{{ form.tags.label_tag }}{{ form.tags }}</div>
+	{{ form.errors }}
+	{% if not update %}<input type="hidden" name="deck" value="" />{% endif %}
+<input type='submit' value="Submit!" /><input type='reset' value='Clear' />
+</div>
+</form>
+{% endblock %}

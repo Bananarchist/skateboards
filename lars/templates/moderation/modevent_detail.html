@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Removal of {{ modevent.content_type.app_label }}.{{ modevent.content_type.model }} "{{ modevent.content_object }}"{% endblock %}
+
+{% block content %}
+{{ modevent.creator }} removed the following on {{ modevent.date_posted.date }} at {{ modevent.date_posted.time }}:
+{% with moderation=1 %}
+{% include object_template %}
+{% endwith %}
+{% if perms.moderation.delete_modevent %}
+<a href="{% url mod:delete modevent.pk %}">Delete Moderation</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title %}{% endblock %}</title>
+	<style>
+		@import '{{ STATIC_URL }}base.css' screen;
+	</style>
+	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+	<script src="{{ STATIC_URL}}jquery.cookie.js"></script>
+	<script>
+		var csrftoken = $.cookie('csrftoken'); 
+		$.ajaxSetup({
+			crossDomain: false,
+			beforeSend: function(xhr, settings) {
+				if(!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type))) {
+					xhr.setRequestHeader('X-CSRFToken', csrftoken);
+				}
+			}
+		});
+	</script>
+	{% block head_script %}{% endblock %}
+</head>
+<body>
+	<header><a href="{% url view_home %}">Represent Skateboarding</a></header>
+	<nav>
+		<a href="{% url news:list %}">News</a>
+		<a href="{% url deck:list %}">Decks</a>
+		<a href="{% url forum:list %}">Threads</a>
+		<a href="">Search</a>
+		{% if user.is_authenticated %}
+		<a href="{% url preferences_page %}">Preferences</a>
+		<a href="{% url logout_page %}">Log Out</a>
+		{% else %}
+		<a href="{% url login_page %}">Login</a>
+		<a href="{% url registration_page %}">Register</a>
+		{% endif %}
+	</nav>
+	<div class='box'>
+		{% block content %}{% endblock %}
+	</div>
+	{% block body_script %}{% endblock %}
+</body>
+</html>

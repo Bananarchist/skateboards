@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderate Post{% endblock %}
+
+{% block content %}
+	<form method="post">
+		{{ form.errors }}
+		{% csrf_token %}
+		{{ form.errors.text }}
+		<label for="id_text">Reason:</label> {{ form.text }}
+		<input type="hidden" name="content_type" value="{{ content_type }}" />
+		<input type="hidden" name="object_id" value="{{ object_id }}" />
+		<input type="submit" value="Delete" /><input type="reset" value="Reset" />
+	</form>
+{% endblock %}

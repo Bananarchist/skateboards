@@ -1,0 +1,10 @@
+<div class="box"><a href="{% url entry:view entry.pk %}">
+	<img class="entry_thumb" src="{{ entry.deck }}" alt="{{ entry.title }} thumbnail" />
+	<br />
+	<span class="entry_title">{{ entry.title }}</span>
+	<br />
+</a>
+<span class="entry_artist">
+	<a href="{% url view_user_profile entry.creator.id %}">{{ entry.creator.username }}</a>
+</span>
+</div>

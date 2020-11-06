@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Forums{% endblock %}
+{% if perms.discuss.add_category %}
+<a href="{% url forum:create %}">Create new forum category</a>
+{% endif %}
+{% block content %}
+{% for forum in forum_list %}
+<div class="forum_list_entry">
+	<h3 class="forum_list_title"><a href="{% url forum:view forum.pk %}">{{ forum.title }}</h3></a>
+	<p>{{ forum.description }}</p>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Comment Moderation{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block body_script %}{% endblock %}
+
+{% block content %}
+
+{% load comments %}
+{% for comment in comments %}
+{{ comment.content_type.name }}: <a href="{{ comment.get_content_object_url }}">{{ comment.content_object.title }}</a>
+<span>{{ comment.comment }}</span>
+<input type="button" value="Delete" /> <input type="button" value="Remove Flag" />
+{% endfor %}
+
+{% endblock %}

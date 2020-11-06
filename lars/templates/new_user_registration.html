@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Registration{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block content %}
+<div id="page">
+	<p>If you would like to register for this site, we need the following pieces of information:</p>
+	<form name="registration_form" action="{% url registration_page %}" method="POST">
+		{% csrf_token %}
+		Username: <input type="text" name="username"></input><br />
+		Password: <input type="password" name="password"></input><br />
+		Email: <input type="email" name="email"></input><br />
+		Again: <input type="text" name="again"></input><br />
+		<input type="submit" value="Submit"></input><br />
+	</form>
+</div>
+{% endblock %}
+
+{% block body_script %}{% endblock %}

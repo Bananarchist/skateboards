@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tag.text }}{% endblock %}
+
+{% block content %}
+	{% if tag.entry_set.all %}
+	{% for entry in tag.entry_set.all %}
+	<h2>Decks</h2>
+		{% include 'entry/entry_mini.html' %}
+	{% endfor %}
+	{% endif %}
+
+
+	{% if tag.thread_set.all %}
+	{% for thread in tag.thread_set.all %}
+	<h2>Threads</h2>
+		{% include 'discuss/thread_mini_view.html' %}	
+	{% endfor %}
+	{% endif %}
+
+{% endblock %}

@@ -1,0 +1,10 @@
+<img id="design" src="{{ deck.deck_image.url }}" />
+<span id="title">{{ deck.title }}</span>
+<div id="deck">
+	<section id="information">
+ 	<span id="deck_credit">Submitted by <a href="{% url view_user_profile deck.creator.id %}">{{ deck.creator.username }}</a></span>
+  		<br />
+  		<span id="deck_description">{{ deck.text }}</span> <br />
+		<span id="deck_tag_list">{% for tag in deck.tags.all %}<a class="tagLink" href="{% url tag:view tag.pk %}">{{ tag.text }}</a> {% endfor %}</span>
+	</section>
+	

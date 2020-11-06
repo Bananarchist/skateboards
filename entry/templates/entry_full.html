@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ entry_title }}{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block body_script %}
+{% if user.is_authenticated %}
+<script>
+function send_vote(e) {
+    var v;
+
+    var jqxhr = $.post('{% url view_entry_details entry.pk %}', 
+    	{entry: {{ entry.pk }}, vote: e.target.value}, 
+    	(function(data, textStatus, jqXHR) {
+     		var root = $(data).find('root');
+     		var disable = root.find('disable').text();
+     		//maybe a good opportunity for .each
+     		$('#votesup').text(root.find('votesup').text());
+     		$('#votesdown').text(root.find('votesdown').text());
+     		if(disable == '1') {
+     			$('#upBtn').prop('disabled', true);
+     			$('#dnBtn').prop('disabled', false);
+     		} else if(disable == '-1') {
+     			$('#dnBtn').prop('disabled', true);
+     			$('#upBtn').prop('disabled', false);
+     		} else {
+     			//don't change baby, please don't change!
+     		}
+    	}), 
+    	'xml')
+     
+	jqxhr.done(function(data, code, xhr) {
+     		var xd = $($.parseXML(data)).find('root');
+    })
+    jqxhr.fail(function(data, code, xhr) {
+    	alert("Failed!");
+    });   
+}
+$('.voteButton').on('click', send_vote);
+
+</script>
+{% endif %}
+{% endblock %}
+
+
+
+{% block content %}
+<div id="page">
+	<img id="design" src="{{ deck_url }}" />
+	<span id="title">{{ entry.title }}</span>
+	<div id="entry">
+		<section id="information">
+  			<span id="entry_credit">Submitted by <a href="{% url view_user_profile creator.id %}">{{ creator.username }}</a></span>
+  			<br />
+  			<span id="entry_description">{{ entry.description }}</span> <br />
+			<span id="entry_tag_list">
+				{% for tag in entry.tags.all %}
+				<a class="tagLink" href="{% url view_tagged_entries tag.pk %}">{{ tag.text }}</a>
+				{% endfor %}
+			</span>
+		</section>
+		<section id="voting">
+			{% if user.is_authenticated %}
+			<input class="voteButton" id="upBtn" type="image" src="{{ MEDIA_URL }}up.png" value="1"{% if uservoted and uservote or entry.expired %} disabled="true"{% endif %}></input> <span class="voteResults" id="votesup">{{ votesup }}</span>
+			<input class="voteButton" id="dnBtn" type="image" src="{{ MEDIA_URL }}down.png" value="-1"{% if uservoted and not uservote or entry.expired %} disabled="true"{% endif %}></input> <span class="voteResults" id="votesdown">{{ votesdown }}</span>
+			{% else %}
+			UP: <span id="votesup">{{ votesup }}</span> DOWN: <span id="votesdown">{{ votesdown }}</span>
+			{% endif %}
+			<!-- Challenge info, if any -->
+		</section>
+		<section id="comments">
+			{% load comments %}
+			{% get_comment_list for entry as comments %}
+			{% for comment in comments %}
+			{% include 'comment_display.html' %}
+			{% endfor %}
+	<!-- Auth/comment system stuff... -->
+			{% if user.is_authenticated %}
+			{% get_comment_form for entry as form %}
+			<form action="{% comment_form_target %}" method="POST">
+			{% csrf_token %}
+			{{ form.comment }}
+			{{ form.honeypot }}
+			{{ form.content_type }}
+			{{ form.object_pk }}
+			{{ form.timestamp }}
+			{{ form.security_hash }}
+			<button id="comment_submit" type="submit" value="Add Comment">Add Comment</button>
+			<button id="comment_clear" type="reset" value="Clear" />Clear</button>
+			</form>
+			{% endif %}
+		</section>
+	</div>
+</div>
+
+{% endblock %}

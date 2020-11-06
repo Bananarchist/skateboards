@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Log in{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block content %}
+<form action="{% url login_page %}" name="login_form" method="POST">
+	{% csrf_token %}
+	<input type="hidden" value="{{ referer }}" name="referer"></input>
+	Username: <input type="text" name="username"></input><br />
+	Password: <input type="password" name="password"></input><br />
+	<input type="submit" value="Log in"></input>
+</form>
+{% endblock %}
+
+{% block body_script %}{% endblock %}

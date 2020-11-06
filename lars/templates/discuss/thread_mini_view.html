@@ -1,0 +1,3 @@
+<div class="thread_list_entry">
+	<a href="{% url thread:view thread.pk %}">{{ thread.title }}</a> ({{ comment_count }}) Created by <a href="{% url view_user_profile thread.creator.pk %}">{{ thread.creator.username }}</a> on {# thread.date_posted #}
+</div>

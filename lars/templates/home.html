@@ -1,0 +1,29 @@
+<!-- home.html -->
+{% extends 'base.html' %}
+
+{% block title %}Represent Skating{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block content %}
+
+<div id="home">
+	<!-- New here? -->
+	<!-- New/Active challenges! -->
+	<section id="news">
+		{% load comments %}
+		{% for thread in thread_list %}
+		{% get_comment_count for thread as comment_count %}
+		{% include "discuss/thread_mini_view.html" %}
+		{% endfor %}
+	</section>
+	<section id="newboards">
+		{% for e in newboards %}
+		<a class="board_link" href="{% url deck:view pk=e.pk %}"><img class="board_img" src="{{ e.deck_image.url }}" alt="" /></a>
+		{% endfor %}
+	</section>
+</div>
+
+{% endblock %}
+
+{% block body_script %}{% endblock %}

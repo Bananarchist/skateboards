@@ -1,0 +1,36 @@
+<!-- user_profile.html -->
+
+{% extends "base.html" %}
+
+{% block title %}{{ u.username }}{% endblock %}
+
+{% block head_script %} {% endblock %}
+
+{% block content %}
+<div id="page">
+	<section id="contact">
+		<img id="avvy" src="" />
+		<span id="name">{{ u.username }}</span>
+		<!-- contact info - email, facebook, websites, etc -->
+	</section>
+	<section id="recent_activity">
+		<span>Recent Activity</span> <!-- something like #recent_activity.firstChild -->
+		{% for action in activity %}
+		<span>{{ action.text }}</span>
+		{% endfor %} 
+	</section>
+	<section id="submissions">
+		<!-- if submissions == 0 write no submissions -->
+		<!-- somewhere we need {# url view_users_entries u.pk #} -->
+		{% if submissions %}
+		<span class="no_submissions">This user hasn't submitted anything.</span>
+		{% else %}
+		{% for e in submissions %}
+		<a class="board_link" href="{% url view_entry_details e.pk %}"><img class="board_img" src="{{ e.deck_image.url }}" alt="" /></a>
+		{% endfor %}
+		{% endif %}
+	</section>
+</div>
+{% endblock %}
+
+{% block body_script %} {% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Threads{% endblock %}
+
+{% block content %}
+{% if search %}
+<form method="GET">
+	{{ form.as_p }}
+	<input type="hidden" name="filter" value="True" />
+	<input type="submit" value="Submit!" /><input type="reset" value="Clear" />
+</form>
+{% endif %}
+
+
+{% for thread in thread_list %}
+	{% if not thread.is_removed %}
+		{% if thread.is_public or perms.discuss.view_private %}
+			{% include 'discuss/thread_mini_view.html' %}
+		{% endif %}
+	{% endif %}
+{% endfor %}
+
+{% endblock %}

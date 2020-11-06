@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Delete {{ thread.title }}?{% endblock %}
+
+{% block content %}
+</span>{{ thread.title }}<span> by {{ thread.creator.username }} on {# thread.date_modified #} (last modified {# thread.date_modified #})
+<p>{{ thread.text }}</p>
+<form method='POST' action'{% url thread:delete thread.pk %}'>
+	{% csrf_token %}
+	<button type='submit'>Delete</button>
+</form>
+<a href='{% url thread:view thread.pk %}'>Cancel</a>
+{% endblock %}

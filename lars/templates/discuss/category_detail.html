@@ -1,0 +1,25 @@
+{% extends 'discuss/thread_list.html' %}
+
+{% load comments %}
+
+{% block title %}{{ forum.title }}{% if not news %} subforum{% endif %}{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block content %}
+<h2 class="forum_name">{{ forum.title }}</h2>
+<p class="forum_description">{{ forum.description }}</p>
+{% if perms.discuss.add_thread %}
+{% if "News" in forum.title %}
+{% if perms.discuss.add_news %}
+<a href="{% url news:create %}">Post News</a>
+{% endif %}
+{% else %}
+<a href="{% url thread:create %}?referer={{forum.pk}}">Post Thread</a>
+{% endif %}
+{% endif %}
+{% for thread in thread_list %}
+{% get_comment_count for thread as comment_count %}
+{% include 'discuss/thread_mini_view.html' %}
+{% endfor %}
+{% endblock %}

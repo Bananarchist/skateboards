@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div id="page">
+	<ul id="entries_slice">
+		{% for entry in data %}
+  		<li class="entry">{% include "entry_mini.html" %}</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pyc
+.project
+.pydevproject
+.settings
+.DS_Store
+*.swp
+fixtures/*
+*.json

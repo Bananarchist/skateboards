@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Post New Announcement{% endblock %}
+
+{% block head_script %}{% endblock %}
+
+{% block content %}
+<div id="page">
+	<form name="announcement" action="{% url post_announcement %}" method="POST">
+		{% csrf_token %}
+		<!--<input type="text" name="title" value="Title" /><br />
+		<textarea name="content"></textarea><br />-->
+		{{ a_form.as_p }}
+		<!-- permissions for adding challenges --> 
+		<label for="ifchallenges">Challenge?</label><input type="checkbox" name="ifchallenge" id="ifchallenges" /><br />
+		<fieldset id="hidden_challenge">
+			{{ c_form.as_p }}
+			<input type="hidden" name="rcount" value="1" />
+			<input type="text" name="req1" value="Requirement..."/><input type="button" id="addmorereqs" value="+" /><input type="button" id="delreqs" value="-" />
+		</fieldset>
+		<input type="submit" value="Post!" /> <input type="reset" value="Clear" />
+	</form>
+</div>
+{% endblock %}
+
+{% block body_script %}
+<script>
+$(document).ready(function() {
+	$('#hidden_challenge').hide();
+	$('#ifchallenges')[0].checked = false;
+	$('#ifchallenges').on('click', function() { 
+			if($(this).is(':checked')) { $('#hidden_challenge').show(); } 
+			else { $('#hidden_challenge').hide(); } 
+		});
+	});
+	$('#delreqs').hide().on('click', function() {
+		rcount = $('input[name=rcount]');
+		$('input[name=req'+rcount.val()+']').remove();
+		$('#hidden_challenge br:last-of-type').remove()
+		rcount.val(parseInt(rcount.val())-1);
+		if(rcount.val()==="1") {
+			$(this).hide();
+		}		
+	});
+	$('#addmorereqs').on('click', function() {
+		rcount = $('input[name=rcount]');
+		rcount.val(parseInt(rcount.val())+1);
+		$(this).before('<br /><input type="text" name="req'+rcount.val()+'" value="Requirement..."/>');
+		if(rcount.val()!=="1") {
+			$('#delreqs').show();
+		}
+	});
+</script>
+{% endblock %}
